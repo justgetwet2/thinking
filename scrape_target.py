@@ -43,26 +43,56 @@ if __name__ == "__main__":
         distance = dist_tag.select_one("a").text.strip()
         title = soup.select_one("span.race-name").text
         title = re.sub("　| ", "", title)
+        weather = get_weather(info_url)
         date = info_url[42:-11]
-        racename = date + " " + course + " " + race + "R" + " " + title
-        racename +=  " " + distance + " " + str(number_of_horses) + "頭"
+        racename = date + " " + course + " " + race + "R" + " " + title + " "
+        racename += distance + " " + weather + " " + str(number_of_horses) + "頭"
 
         return racename
+
+    def get_weather(info_url):
+        url = info_url[:-5] + ".do"
+        program_url = url.replace("/race_info/", "/program/")
+        soup = get_soup(program_url)
+        tag = soup.select_one("div#sts-bangumi")
+        img1, img2 = tag.select("img")
+        weat = img1.get("alt")
+        cond = img2.get("alt")
+
+        return weat.split("：")[1] + "/" + cond.split("：")[1]
 
     races = april_races()
     # racenames = []
     data = []
     for i, (dt, course, hold) in enumerate(races):
-        if i > -1:
+        if i == 0:
             for race in (srj(n) for n in range(1, 13)):
                 target = dt + course_d[course] + hold + race + ".do"
                 info_url = nankan_url + "/race_info/" + yyyy + target
                 racename = get_racename(info_url)
-                is_dist = [d for d in ("1,400", "1,500", "1,600") if d in racename]
+                # print(racename)
+                is_dist = [d for d in ("1,500",) if d in racename]
                 if is_dist and "Ｃ" in racename:
                     print(racename)
 
                     entry_df = get_dfs(info_url)[0]
+                    race_condition = racename.split()[-2].split("/")[1]
+
+                    soup = get_soup(info_url)
+                    tags = soup.select("a.tx-mid")
+                    for tag in tags:
+                        print(tag.text)
+                        url = nankan_url + tag.get("href")
+                        dfs = get_dfs(url)
+                        df = dfs[-1]
+                        if df.columns[0] == "年月日":
+                            for i, row in df.iterrows():
+                                if i == 0:
+                                    row.index = [s.replace(" ", "") for s in row.index]
+                                    weath_cond = row.天候馬場
+                                    each_condition = weath_cond.split("/")[1]
+                                    if race_condition == each_condition:
+                                        print(row.タイム)
 
                     odds_url = nankan_url + "/odds/" + yyyy + target.strip(".do") + "01.do"
                     odds_dfs = get_dfs(odds_url)
@@ -74,8 +104,26 @@ if __name__ == "__main__":
 
                     data.append((racename, entry_df, odds_df, result_df))
 
-    #             racenames.append(racename)
+# 年月日              22/05/20
+# 場名                     川崎
+# R                      5R
+# レース名          Ｃ３(一)(二)(三)
+# 距離                  1400m
+# 天候  馬場                晴/良
+# 馬番                  11  番
+# 人気                   4  人
+# 着/頭数         1  着  /12  頭
+# タイム                1:31.2
+# 差/事故                  0.3
+# 上3F                  39.7
+# コーナー  通過順           4-3-3
+# 体重                    480
+# 騎手                    野畑凌
+# 負担  重量               51.0
+# 調教師                   八木喜
+# 獲得賞金           800,000  円
 
-    filename = "./data/" + "april_c.pickle"
-    with open(filename, "wb") as f:
-        pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
+
+    # filename = "./data/" + "april_c.pickle"
+    # with open(filename, "wb") as f:
+    #     pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)

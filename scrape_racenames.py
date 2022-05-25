@@ -43,23 +43,35 @@ if __name__ == "__main__":
         distance = dist_tag.select_one("a").text.strip()
         title = soup.select_one("span.race-name").text
         title = re.sub("　| ", "", title)
+        weather = get_weather(info_url)
         date = info_url[42:-11]
-        racename = date + " " + course + " " + race + "R" + " " + title
-        racename +=  " " + distance + " " + str(number_of_horses) + "頭"
+        racename = date + " " + course + " " + race + "R" + " " + title + " "
+        racename += distance + " " + weather + " " + str(number_of_horses) + "頭"
 
         return racename
+
+    def get_weather(info_url):
+        url = info_url[:-5] + ".do"
+        program_url = url.replace("/race_info/", "/program/")
+        soup = get_soup(program_url)
+        tag = soup.select_one("div#sts-bangumi")
+        img1, img2 = tag.select("img")
+        weat = img1.get("alt")
+        cond = img2.get("alt")
+
+        return weat.split("：")[1] + "/" + cond.split("：")[1]
 
     races = april_races()
     racenames = []
     for i, (dt, course, hold) in enumerate(races):
-        if i > -1:
-            for race in (srj(n) for n in range(1, 13)):
+        if i == 0:
+            for race in (srj(n) for n in range(1, 2)):
                 target = dt + course_d[course] + hold + race + ".do"
                 info_url = nankan_url + "/race_info/" + yyyy + target
                 racename = get_racename(info_url)
                 print(racename)
                 racenames.append(racename)
 
-    filename = "./data/" + "april" + "_racenames.pickle"
-    with open(filename, "wb") as f:
-        pickle.dump(racenames, f, pickle.HIGHEST_PROTOCOL)
+    # filename = "./data/" + "april" + "_racenames.pickle"
+    # with open(filename, "wb") as f:
+    #     pickle.dump(racenames, f, pickle.HIGHEST_PROTOCOL)
