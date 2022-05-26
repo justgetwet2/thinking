@@ -40,7 +40,8 @@ if __name__ == "__main__":
         soup = get_soup(info_url)
         number_of_horses = len(soup.select("td.titi-haha"))
         dist_tag = soup.select_one("div#race-data01-a")
-        distance = dist_tag.select_one("a").text.strip()
+        distance = dist_tag.select_one("a").text
+        distance = distance.strip().replace(",", "")
         title = soup.select_one("span.race-name").text
         title = re.sub("　| ", "", title)
         weather = get_weather(info_url)
@@ -64,14 +65,14 @@ if __name__ == "__main__":
     races = april_races()
     racenames = []
     for i, (dt, course, hold) in enumerate(races):
-        if i == 0:
-            for race in (srj(n) for n in range(1, 2)):
+        if i > -1:
+            for race in (srj(n) for n in range(1, 13)):
                 target = dt + course_d[course] + hold + race + ".do"
                 info_url = nankan_url + "/race_info/" + yyyy + target
                 racename = get_racename(info_url)
                 print(racename)
                 racenames.append(racename)
 
-    # filename = "./data/" + "april" + "_racenames.pickle"
-    # with open(filename, "wb") as f:
-    #     pickle.dump(racenames, f, pickle.HIGHEST_PROTOCOL)
+    filename = "./data/" + "april" + "_racenames.pickle"
+    with open(filename, "wb") as f:
+        pickle.dump(racenames, f, pickle.HIGHEST_PROTOCOL)
