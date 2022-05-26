@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
     filepath = "./data/april_test.pickle"
     with open(filepath, mode="rb") as f:
-        data = pickle.load(f)
+        srs = pickle.load(f)
 
     def ftime(s):
         a, b = s.split(":")
@@ -16,15 +16,16 @@ if __name__ == "__main__":
 
 
     x, y = [], []
-    for d in data:
-        print(d)
-        if d[1] == "良" and not d[3] == "-" and not d[4] == "":
-            print(d)
-            # x.append(ftime(d[3]))
-            # y.append(ftime(d[4]))
+    for i, sr in enumerate(srs):
+        if sr["condition"] == "稍重":
+            result = sr["result"]
+            lasttime = sr["last_time"]
+            if result and lasttime:
+                x.append(lasttime)
+                y.append(result)
 
     # x = [d[0] for d in data]
     # print(set(x))
 
-    # plt.plot(x, y, ".")
-    # plt.show()
+    plt.plot(x, y, ".")
+    plt.show()
