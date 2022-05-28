@@ -29,6 +29,15 @@ if __name__ == "__main__":
 
     s = lambda i: str(i).rjust(2, "0")
     pasts = []
+    pasts += [(f"02{s(i+6)}", "大井", f"17{s(i)}") for i in range(1, 6)]
+    pasts += [(f"02{s(i+13)}", "船橋", f"11{s(i)}") for i in range(1, 6)]
+    pasts += [(f"02{s(i+20)}", "浦和", f"12{s(i)}") for i in range(1, 6)]
+    pasts += [("0228", "川崎", "1301")]
+    pasts += [(f"03{s(i)}", "川崎", f"13{s(i+1)}") for i in range(1, 5)]
+    pasts += [(f"03{s(i+6)}", "大井", f"18{s(i)}") for i in range(1, 6)]
+    pasts += [(f"03{s(i+13)}", "浦和", f"13{s(i)}") for i in range(1, 6)]
+    pasts += [(f"03{s(i+20)}", "船橋", f"12{s(i)}") for i in range(1, 6)]
+    pasts += [(f"03{s(i+27)}", "大井", f"19{s(i)}") for i in range(1, 5)]
     # pasts += [("0401", "大井", "0101")] # 中止
     pasts += [(f"04{s(i+3)}", "川崎", f"01{s(i)}") for i in range(1, 6)]
     pasts += [(f"04{s(i+10)}", "船橋", f"01{s(i)}") for i in range(1, 6)]
