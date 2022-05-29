@@ -48,7 +48,7 @@ if __name__ == "__main__":
     print("all", "B", "C1", "C2", "C3")
     print(len(races), len(b), len(c1), len(c2), len(c3))
 
-    c3_1500 = [race for race in c3 if "1,600m" in race.split()[-4]]
+    c3_1500 = [race for race in c3 if "1,500m" in race.split()[-4]]
     c3_1500_dry = [race for race in c3_1500 if "/良" in race.split()[-2]]
     c3_1500_wet = [race for race in c3_1500 if "/稍重" in race.split()[-2]]
     c3_1500_hvy = [race for race in c3_1500 if "/重" in race.split()[-2]]
@@ -58,6 +58,11 @@ if __name__ == "__main__":
 # all B C1 C2 C3
 # 708 9 39 107 92
 # 14 5 2 3
+
+# all B C1 C2 C3
+# 948 10 52 136 126
+# 19 9 2 3
+
 
 
     # for races in [c3_1500_dry, c3_1500_wet, c3_1500_hvy]:
