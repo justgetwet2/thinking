@@ -144,8 +144,9 @@ def get_horses(racename):
         except:
             pass
         history_df = dfs[-1]
-        last_time = 0
-        last_3f = 0
+        prev_time_diff = 9.9
+        prev_time = 0.
+        prev_last3f = 0.
         if history_df.columns[0] == "年月日":
             for i, row in history_df.iterrows():
                 if i > -1:
@@ -159,13 +160,14 @@ def get_horses(racename):
                     # print(race_condition, each_condition, row.距離)                     
                     if race_condition == each_condition and row.距離 == race_distance:
                         try:
-                            last_time = ftime(row.タイム)
-                            last_3f = ftime(row.上3F)
+                            prev_time_diff = float(row["差/事故"])
+                            prev_time = ftime(row["タイム"])
+                            prev_last3f = ftime(row["上3F"])
                             break
                         except:
                             pass
-        data = name, last_time, last_3f, horse_ratio, race_condition
-        index = "name", "last time", "last 3F", "horse_ratio", "condition"
+        data = name, horse_ratio, prev_time_diff, prev_last3f, prev_time, race_condition
+        index = "name", "horse_ratio", "time_diff", "last3F", "prev_time", "condition"
         print(name)
         sr = pd.Series(data, index=index)
         horses.append(sr)
@@ -202,16 +204,13 @@ if __name__ == "__main__":
 # 948 10 52 136 126
 # 19 9 2 3
 
-    for i, racename in enumerate(c3_1500_dry):
-        if i == 5:
-            entries = get_entries(racename)
-            horses = get_horses(racename)
-        
     srs = []
-    for entry, horse in zip(entries, horses):
-        sr = pd.concat([entry, horse[1:]])
-        
-        srs.append(sr)
+    for i, racename in enumerate(c3_1500_dry):
+        entries = get_entries(racename)
+        horses = get_horses(racename)
+        for entry, horse in zip(entries, horses):
+            sr = pd.concat([entry, horse[1:]])
+            srs.append(sr)
 
     filename = "./data/c3_1500.pickle"
     with open(filename, "wb") as f:
