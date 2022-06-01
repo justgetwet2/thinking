@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 import os
 import pandas as pd
 import pickle
@@ -174,6 +175,82 @@ def get_horses(racename):
 
     return horses
 
+JRA = "札幌", "函館", "福島", "新潟", "中山", "東京", "中京", "京都", "阪神", "小倉"
+NANKAN = "大井", "船橋", "川崎", "浦和"
+
+def get_times(racename):
+    print(racename)
+    info_url = nankan_url + "/race_info/" + yyyy + racename.split()[-1] + ".do"
+    race_condition = racename.split()[-2].split("/")[1]
+    dist = racename.split()[-4]
+    race_distance = dist.split("m")[0].strip("ダ").replace(",", "") + "m"
+
+    soup = get_soup(info_url)
+    tags = soup.select("a.tx-mid")
+    horses = []
+    all_dry, all_wet, all_hvy = [], [], []
+    for tag in tags:
+        name = tag.text
+        url = nankan_url + tag.get("href")
+        dfs = get_dfs(url)
+        
+        summary_df = dfs[2]
+        col_name = summary_df.columns[-1] # 連対率
+        horse_ratio = 0.0
+        try:
+            horse_ratio = float(summary_df[col_name][0])
+        except:
+            pass
+
+        history_df = dfs[-1]
+        prev_time_diff = 9.9
+        prev_time = 0.
+        prev_last3f = 0.
+        if history_df.columns[0] == "年月日":
+            times = []
+            for i, row in history_df.iterrows():
+                if i > -1 and row["場名"] in NANKAN:
+                    if row["距離"] == "1500m":
+                        weat_cond = row["天候  馬場"]
+                        condition = ""
+                        if type(weat_cond) != float:
+                            condition = weat_cond.split("/")[1]
+                        stime = row["タイム
+                        if type(stime) == str:
+                            time = ftime(stime)
+                            if condition == "良":
+                                times.append(time)
+                            if "重" in condition:
+                                times.append(time + 0.2)
+        m = None
+        if times:
+            m = np.mean(times)
+        print(name, len(times), m)
+
+                    # row.index = [s.replace(" ", "") for s in row.index]
+        #             weat_cond = row["天候 馬場"]
+        #             each_condition = ""
+        #             try:
+        #                 each_condition = weat_cond.split("/")[1]
+        #             except: # nan
+        #                 pass
+        #             # print(race_condition, each_condition, row.距離)                     
+        #             if race_condition == each_condition and row.距離 == race_distance:
+        #                 try:
+        #                     prev_time_diff = float(row["差/事故"])
+        #                     prev_time = ftime(row["タイム"])
+        #                     prev_last3f = ftime(row["上3F"])
+        #                     break
+        #                 except:
+        #                     pass
+        # data = name, horse_ratio, prev_time_diff, prev_last3f, prev_time, race_condition
+        # index = "name", "horse_ratio", "time_diff", "last3F", "prev_time", "condition"
+        # print(name)
+        # sr = pd.Series(data, index=index)
+        # horses.append(sr)
+
+    # return horses
+    return all_dry, all_wet, all_hvy
 
 if __name__ == "__main__":
 
@@ -191,10 +268,10 @@ if __name__ == "__main__":
 
     c3_1500 = [race for race in c3 if "1,500m" in race.split()[-4]]
     c3_1500_dry = [race for race in c3_1500 if "/良" in race.split()[-2]]
-    # c3_1500_wet = [race for race in c3_1500 if "/稍重" in race.split()[-2]]
-    # c3_1500_hvy = [race for race in c3_1500 if "/重" in race.split()[-2]]
+    c3_1500_wet = [race for race in c3_1500 if "/稍重" in race.split()[-2]]
+    c3_1500_hvy = [race for race in c3_1500 if "/重" in race.split()[-2]]
 
-    # print(len(c3_1500), len(c3_1500_dry), len(c3_1500_wet), len(c3_1500_hvy))
+    print(len(c3_1500), len(c3_1500_dry), len(c3_1500_wet), len(c3_1500_hvy))
 
 # all B C1 C2 C3
 # 708 9 39 107 92
@@ -205,57 +282,22 @@ if __name__ == "__main__":
 # 19 9 2 3
 
     srs = []
+    drys, wets, hvys = [], [], []
     for i, racename in enumerate(c3_1500_dry):
-        entries = get_entries(racename)
-        horses = get_horses(racename)
-        for entry, horse in zip(entries, horses):
-            sr = pd.concat([entry, horse[1:]])
-            srs.append(sr)
+        # entries = get_entries(racename)
+        # horses = get_horses(racename)
+        # for entry, horse in zip(entries, horses):
+        #     sr = pd.concat([entry, horse[1:]])
+        #     srs.append(sr)
+        dry, wet, hvy = get_times(racename)
+        drys += dry
+        wets += wet
+        hvys += hvy
 
-    filename = "./data/c3_1500.pickle"
-    with open(filename, "wb") as f:
-        pickle.dump(srs, f, pickle.HIGHEST_PROTOCOL)
+    print("dry", len(drys), np.mean(drys))
+    print("wet", len(wets), np.mean(wets))
+    print("hvy", len(hvy), np.mean(hvys))
 
-    # for races in [c3_1500_dry, c3_1500_wet, c3_1500_hvy]:
-    #     x = []
-    #     for race in races:
-    #         result_url = nankan_url + "/result/" + yyyy + race.split()[-1] + ".do"
-    #         dfs = get_dfs(result_url)
-    #         result_df = dfs[0]
-    #         x += [ftime(row.タイム) for i, row in result_df.iterrows() if row.タイム != "-"]
-        
-    #     print(len(races), len(x), np.mean(x))
-
-
-
-
-    # fig = plt.figure()
-    # ax = fig.add_subplot(1,1,1)
-
-    # ax.hist(favs, bins=50)
-    # ax.set_title('tri histogram')
-    # ax.set_xlabel('favorite')
-    # ax.set_ylabel('freq')
-    # plt.show()
-
-
-    # print(pd.__version__)
-
-    # favs = []
-    # for i, (racename, entry_df, odds_df, result_df) in enumerate(races):
-    #     # print(racename)
-    #     if i > -1:
-    #         odds_d = {}
-    #         for idx, row in odds_df.iterrows():
-    #             try:
-    #                 odds = float(row["単勝"])
-    #                 odds_d[row["馬番"]] = odds
-    #             except:
-    #                 pass
-    #         # print(odds_d)        
-    #         for idx, row in result_df.iterrows():
-    #             if idx < 2:
-    #                 umaban, fav = row["馬番"], int(row["人気"])# 人気 1.0
-    #                 # winnings.append((umaban, row["馬名"], fav, odds_d[umaban])) 
-    #                 favs.append(fav)
-    #                 # print(umaban, row["馬名"], fav, odds_d[umaban])
+    # filename = "./data/c3_1500.pickle"
+    # with open(filename, "wb") as f:
+    #     pickle.dump(srs, f, pickle.HIGHEST_PROTOCOL)
