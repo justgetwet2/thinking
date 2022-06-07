@@ -28,31 +28,50 @@ def get_dfs(url):
 if __name__ == "__main__":
 
     s = lambda i: str(i).rjust(2, "0")
-    pasts = []
-    pasts += [(f"02{s(i+6)}", "大井", f"17{s(i)}") for i in range(1, 6)]
-    pasts += [(f"02{s(i+13)}", "船橋", f"11{s(i)}") for i in range(1, 6)]
-    pasts += [(f"02{s(i+20)}", "浦和", f"12{s(i)}") for i in range(1, 6)]
-    pasts += [("0228", "川崎", "1301")]
-    pasts += [(f"03{s(i)}", "川崎", f"13{s(i+1)}") for i in range(1, 5)]
-    pasts += [(f"03{s(i+6)}", "大井", f"18{s(i)}") for i in range(1, 6)]
-    pasts += [(f"03{s(i+13)}", "浦和", f"13{s(i)}") for i in range(1, 6)]
-    pasts += [(f"03{s(i+20)}", "船橋", f"12{s(i)}") for i in range(1, 6)]
-    pasts += [(f"03{s(i+27)}", "大井", f"19{s(i)}") for i in range(1, 5)]
-    # pasts += [("0401", "大井", "0101")] # 中止
-    pasts += [(f"04{s(i+3)}", "川崎", f"01{s(i)}") for i in range(1, 6)]
-    pasts += [(f"04{s(i+10)}", "船橋", f"01{s(i)}") for i in range(1, 6)]
-    pasts += [(f"04{s(i+17)}", "大井", f"02{s(i)}") for i in range(1, 6)]
-    pasts += [(f"04{s(i+24)}", "浦和", f"01{s(i)}") for i in range(1, 6)]
-    pasts += [(f"05{s(i+1)}", "船橋", f"02{s(i)}") for i in range(1, 6)]
-    pasts += [(f"05{s(i+8)}", "大井", f"03{s(i)}") for i in range(1, 6)]
-    pasts += [(f"05{s(i+15)}", "川崎", f"02{s(i)}") for i in range(1, 6)]
-    pasts += [(f"05{s(i+22)}", "大井", f"04{s(i)}") for i in range(1, 6)]
-    
     races = []
-    for i, (dt, course, hold) in enumerate(pasts):
+    # races += [(f"01{s(i)}", "川崎", f"11{s(i)}") for i in range(1, 5)]
+    # races += [(f"01{s(i)}", "川崎", f"11{s(i-1)}") for i in range(6, 8)] # 雪で中止
+    # races += [(f"01{s(i+9)}", "船橋", f"10{s(i)}") for i in range(1, 6)]
+    # races += [(f"01{s(i+16)}", "浦和", f"11{s(i)}") for i in range(1, 6)]
+    # races += [(f"01{s(i+23)}", "大井", f"16{s(i)}") for i in range(1, 6)]
+    # races += [(f"01{s(i+30)}", "川崎", f"12{s(i)}") for i in range(1, 2)]
+    # races += [(f"02{s(i-1)}", "川崎", f"12{s(i)}") for i in range(2, 6)]
+    # races += [(f"02{s(i+6)}", "大井", f"17{s(i)}") for i in range(1, 6)]
+    # races += [(f"02{s(i+13)}", "船橋", f"11{s(i)}") for i in range(1, 6)]
+    # races += [(f"02{s(i+20)}", "浦和", f"12{s(i)}") for i in range(1, 6)]
+    # races += [("0228", "川崎", "1301")]
+    # races += [(f"03{s(i)}", "川崎", f"13{s(i+1)}") for i in range(1, 5)]
+    # races += [(f"03{s(i+6)}", "大井", f"18{s(i)}") for i in range(1, 6)]
+    # races += [(f"03{s(i+13)}", "浦和", f"13{s(i)}") for i in range(1, 6)]
+    # races += [(f"03{s(i+20)}", "船橋", f"12{s(i)}") for i in range(1, 6)]
+    # races += [(f"03{s(i+27)}", "大井", f"19{s(i)}") for i in range(1, 5)]
+    races += [("0401", "大井", "0101")] # コンディション不良で全て中止
+    # races += [(f"04{s(i+3)}", "川崎", f"01{s(i)}") for i in range(1, 6)]
+    # races += [(f"04{s(i+10)}", "船橋", f"01{s(i)}") for i in range(1, 6)]
+    # races += [(f"04{s(i+17)}", "大井", f"02{s(i)}") for i in range(1, 6)]
+    # races += [(f"04{s(i+24)}", "浦和", f"01{s(i)}") for i in range(1, 6)]
+    # races += [(f"05{s(i+1)}", "船橋", f"02{s(i)}") for i in range(1, 6)]
+    # races += [(f"05{s(i+8)}", "大井", f"03{s(i)}") for i in range(1, 6)]
+    # races += [(f"05{s(i+15)}", "川崎", f"02{s(i)}") for i in range(1, 6)]
+    # races += [(f"05{s(i+22)}", "大井", f"04{s(i)}") for i in range(1, 6)]
+    
+    data = []
+    for i, (dt, course, hold) in enumerate(races):
         if i > -1:
             for race in (s(n) for n in range(1, 13)):
                 target = dt + course_d[course] + hold + race
+
+                result_url = nankan_url + "/result/" + yyyy + target + ".do"
+                dfs = get_dfs(result_url)
+                if not dfs: # レースなし
+                    print(f"{df} {race}R no race...")
+                    continue
+                else:
+                    df = dfs[0]
+                    if not df.columns[0] == "着": # 結果なし
+                        print(f"{dt} {race}R no result...")
+                        continue
+
                 info_url = nankan_url + "/race_info/" + yyyy + target + ".do"
                 soup = get_soup(info_url)
                 dist_tag = soup.select_one("div#race-data01-a")
@@ -70,7 +89,7 @@ if __name__ == "__main__":
                 
                 # m = re.match("Ｃ３\(", racename.split()[2])
                 print(racename)
-                races.append(racename)
+                data.append(racename)
                 # odds_url = nankan_url + "/odds/" + yyyy + target + "01.do"
                 # odds_dfs = get_dfs(odds_url)
                 # odds_df = [df for df in odds_dfs if df.columns[0] == "枠番"][0]
@@ -79,6 +98,6 @@ if __name__ == "__main__":
 
                 # races.append((racename, entry_df, odds_df, result_df))
         
-    filename = "./data/" + "racenames_22.pickle"
-    with open(filename, "wb") as f:
-        pickle.dump(races, f, pickle.HIGHEST_PROTOCOL)
+    # filename = "./data/" + "racenames_22.pickle"
+    # with open(filename, "wb") as f:
+    #     pickle.dump(races, f, pickle.HIGHEST_PROTOCOL)
