@@ -27,10 +27,14 @@ def get_dfs(url):
 
 if __name__ == "__main__":
 
+    filename = "./data/" + "racenames_2022.pickle"
+    with open(filename, "rb") as f:
+        read_data = pickle.load(f)
+
     s = lambda i: str(i).rjust(2, "0")
     races = []
     # races += [(f"01{s(i)}", "川崎", f"11{s(i)}") for i in range(1, 5)]
-    # races += [(f"01{s(i)}", "川崎", f"11{s(i-1)}") for i in range(6, 8)] # 雪で中止
+    # races += [(f"01{s(i)}", "川崎", f"11{s(i-1)}") for i in range(6, 8)] # 雪で8Rから中止
     # races += [(f"01{s(i+9)}", "船橋", f"10{s(i)}") for i in range(1, 6)]
     # races += [(f"01{s(i+16)}", "浦和", f"11{s(i)}") for i in range(1, 6)]
     # races += [(f"01{s(i+23)}", "大井", f"16{s(i)}") for i in range(1, 6)]
@@ -45,7 +49,7 @@ if __name__ == "__main__":
     # races += [(f"03{s(i+13)}", "浦和", f"13{s(i)}") for i in range(1, 6)]
     # races += [(f"03{s(i+20)}", "船橋", f"12{s(i)}") for i in range(1, 6)]
     # races += [(f"03{s(i+27)}", "大井", f"19{s(i)}") for i in range(1, 5)]
-    races += [("0401", "大井", "0101")] # コンディション不良で全て中止
+    # races += [("0401", "大井", "0101")] # コンディション不良で全て中止
     # races += [(f"04{s(i+3)}", "川崎", f"01{s(i)}") for i in range(1, 6)]
     # races += [(f"04{s(i+10)}", "船橋", f"01{s(i)}") for i in range(1, 6)]
     # races += [(f"04{s(i+17)}", "大井", f"02{s(i)}") for i in range(1, 6)]
@@ -54,7 +58,9 @@ if __name__ == "__main__":
     # races += [(f"05{s(i+8)}", "大井", f"03{s(i)}") for i in range(1, 6)]
     # races += [(f"05{s(i+15)}", "川崎", f"02{s(i)}") for i in range(1, 6)]
     # races += [(f"05{s(i+22)}", "大井", f"04{s(i)}") for i in range(1, 6)]
-    
+    races += [(f"05{s(i+29)}", "浦和", f"02{s(i)}") for i in range(1, 3)]
+    races += [(f"06{s(i-2)}", "浦和", f"02{s(i)}") for i in range(3, 6)]
+
     data = []
     for i, (dt, course, hold) in enumerate(races):
         if i > -1:
@@ -87,17 +93,17 @@ if __name__ == "__main__":
                 racename += " " + dist + " " + str(len(entry_df)) + "頭 " + condition
                 racename += " " + target
                 
-                # m = re.match("Ｃ３\(", racename.split()[2])
                 print(racename)
                 data.append(racename)
+
+                # m = re.match("Ｃ３\(", racename.split()[2])
+
                 # odds_url = nankan_url + "/odds/" + yyyy + target + "01.do"
                 # odds_dfs = get_dfs(odds_url)
                 # odds_df = [df for df in odds_dfs if df.columns[0] == "枠番"][0]
-
-                # result_df = dfs[0]
-
-                # races.append((racename, entry_df, odds_df, result_df))
         
-    # filename = "./data/" + "racenames_22.pickle"
-    # with open(filename, "wb") as f:
-    #     pickle.dump(races, f, pickle.HIGHEST_PROTOCOL)
+    new_data = read_data + data
+
+    filename = "./data/" + "_racenames_2022.pickle"
+    with open(filename, "wb") as f:
+        pickle.dump(new_data, f, pickle.HIGHEST_PROTOCOL)
