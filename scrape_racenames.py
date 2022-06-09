@@ -101,3 +101,5 @@ if __name__ == "__main__":
     # filename = "./data/" + "racenames_22.pickle"
     # with open(filename, "wb") as f:
     #     pickle.dump(races, f, pickle.HIGHEST_PROTOCOL)
+
+    # https://returnofthecaferacers.com/kawasaki-cafe-racer/the-saint-kawasaki-w800/
