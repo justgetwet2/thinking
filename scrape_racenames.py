@@ -102,16 +102,13 @@ if __name__ == "__main__":
                 # odds_dfs = get_dfs(odds_url)
                 # odds_df = [df for df in odds_dfs if df.co lumns[0] == "枠番"][0]
         
-<<<<<<< HEAD
     # filename = "./data/" + "racenames_22.pickle"
     # with open(filename, "wb") as f:
     #     pickle.dump(races, f, pickle.HIGHEST_PROTOCOL)
 
     # https://returnofthecaferacers.com/kawasaki-cafe-racer/the-saint-kawasaki-w800/
-=======
     new_data = read_data + data
 
     filename = "./data/" + "_racenames_2022.pickle"
     with open(filename, "wb") as f:
         pickle.dump(new_data, f, pickle.HIGHEST_PROTOCOL)
->>>>>>> db58eb2ec35671781caade1ed542e0974d594ce5
