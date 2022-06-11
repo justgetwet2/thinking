@@ -1,4 +1,3 @@
-
 ua = {"User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.57"}
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -40,12 +39,12 @@ def get_dfs(url):
 
 if __name__ == "__main__":
 
-    nankan_url =  "https://www.nankankeiba.com"
-    yyyy = "2022"
-
     p = "./data/racenames_2022.pickle"
     with open(p, mode="rb") as f:
         races = pickle.load(f)
+
+    nankan_url =  "https://www.nankankeiba.com"
+    yyyy = "2022"
 
     worksheets = connect_gspred()
     ws = worksheets[0]
@@ -87,5 +86,6 @@ if __name__ == "__main__":
                         trif_s = row["三連単.1"]
                         trif = int(trif_s.strip("円").replace(",", ""))
         values = dt, racename, dist, entries, condition, fst, sec, trd, win, exac, trif, winner
-        # ws.append_row(values)
-        print(values)
+        # print(values)
+        ws.append_row(values)
+
