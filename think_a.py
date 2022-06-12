@@ -15,20 +15,22 @@ def connect_gspred():
     worksheets = workbook.worksheets()
     return worksheets
 
+def describe(values):
+    pd.options.display.float_format = '{:.2f}'.format
+    df = pd.DataFrame(values, columns=("X",))
+    print(df.describe())
+
 if __name__ == "__main__":
 
     worksheets = connect_gspred()
     ws = worksheets[0]
 
     df = pd.DataFrame(ws.get_all_records())
-    data = [t.trifecta for t in df.itertuples()]
+    x = [t.trifecta for t in df.itertuples()]
 
-    print("size   : ", len(data))
-    print("max    :", np.max(data))
-    print("min    :", np.min(data))
-    print("mean   : ", round(np.mean(data), 2))
-    print("median : ", round(np.median(data), 2))
-    print("std    :", round(np.std(data), 2))
+    describe(x)
 
-    plt.hist(data, range=(0, 6000000), bins=50)
+    plt.title("trifecta payout chart 0 - 6000k")
+    # plt.hist(x, bins=50)
+    plt.hist(x, range=(0, 1000000), bins=50)
     plt.show()
