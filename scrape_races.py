@@ -11,7 +11,8 @@ def get_soup(url):
     except requests.RequestException as e:
         print("Error: ", e)
     else:
-        return BeautifulSoup(res.content, "html.parser")
+        soup = BeautifulSoup(res.content, "html.parser")
+        return soup
 
 def get_dfs(url):
     dfs = []
@@ -23,19 +24,10 @@ def get_dfs(url):
             print(f"It's no table! {url}")
     return dfs
 
-if __name__ == "__main__":
-
-    nankan_url =  "https://www.nankankeiba.com"
-    yyyy = "2022"
-    course_d = { "浦和": "18", "船橋": "19", "大井": "20", "川崎": "21" }
-
-    # filename = "./data/" + "races_2022.pickle"
-    # with open(filename, "rb") as f:
-    #     read_data = pickle.load(f)
-
-    def strj(x):
-        return str(x).rjust(2, "0")
+def strj(x):
+    return str(x).rjust(2, "0")
     
+def race_tuples():
     races = []
     # races += [(f"01{strj(i)}", "川崎", f"11{strj(i)}") for i in range(1, 5)]
     # races += [(f"01{strj(i)}", "川崎", f"11{strj(i-1)}") for i in range(6, 8)] # 雪で8Rから中止
@@ -64,7 +56,21 @@ if __name__ == "__main__":
     # races += [(f"05{strj(i+22)}", "大井", f"04{strj(i)}") for i in range(1, 6)]
     # races += [(f"05{strj(i+29)}", "浦和", f"02{strj(i)}") for i in range(1, 3)]
     # races += [(f"06{strj(i-2)}", "浦和", f"02{strj(i)}") for i in range(3, 6)]
-    # races += [(f"06{strj(i+5)}", "大井", f"05{strj(i)}") for i in range(1, 2)]
+    # races += [(f"06{strj(i+5)}", "大井", f"05{strj(i)}") for i in range(1,  6)]
+
+    return races
+
+if __name__ == "__main__":
+
+    nankan_url =  "https://www.nankankeiba.com"
+    yyyy = "2022"
+    course_d = { "浦和": "18", "船橋": "19", "大井": "20", "川崎": "21" }
+
+    filename = "./data/" + "races_2022.pickle"
+    with open(filename, "rb") as f:
+        read_data = pickle.load(f)
+
+    races = race_tuples()
 
     data = []
     for i, (dt, course, hold) in enumerate(races):
@@ -103,11 +109,9 @@ if __name__ == "__main__":
             print(t)
             data.append(t)
 
-    # m = re.match("Ｃ３\(", racename)
+    data = read_data + data
 
-    new_data = [] + data
-    # new_data = read_data + data
+    filepath = "./data/" + "races_2022.pickle"
+    with open(filepath, "wb") as f:
+        pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
 
-    filename = "./data/" + "races_2022.pickle"
-    with open(filename, "wb") as f:
-        pickle.dump(new_data, f, pickle.HIGHEST_PROTOCOL)
