@@ -26,16 +26,12 @@ for i, race in enumerate(races):
         # print(dt, r, racename)
         _3 += 1
     if re.match("Ｃ３\(", racename):
-        # print(dt, r, racename)
         c3 += 1
     if re.match("Ｃ２\(", racename):
-        # print(dt, r, racename)
         c2 += 1
     if re.match("Ｃ１\(", racename):
-        # print(dt, r, racename)
         c1 += 1
     if re.match("Ｂ１\(", racename) or re.match("Ｂ２\(", racename) or re.match("Ｂ３\(", racename):
-        # print(dt, r, racename)
         b += 1
 
 d = {"3old": _3, "C3": c3, "C2": c2, "C1": c1, "B": b}

@@ -1,4 +1,5 @@
 ua = {"User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.57"}
+from turtle import distance
 from bs4 import BeautifulSoup
 import pandas as pd
 import pickle
@@ -39,8 +40,8 @@ def get_dfs(url):
 
 if __name__ == "__main__":
 
-    p = "./data/racenames_2022.pickle"
-    with open(p, mode="rb") as f:
+    filename = "./data/races_2022.pickle"
+    with open(filename, mode="rb") as f:
         races = pickle.load(f)
 
     nankan_url =  "https://www.nankankeiba.com"
@@ -49,30 +50,25 @@ if __name__ == "__main__":
     worksheets = connect_gspred()
     ws = worksheets[0]
 
-    for i, race in enumerate(races[234:]):
+    for i, race in enumerate(races):
+        # if i: continue
         if i and i%50 == 0:
             sleep(120)
-        dt = race.split()[-1:][0][:4] + " " + " ".join(race.split()[:2])
-        racename = " ".join(race.split()[2:-4:])
-        print(dt, racename)
-        dist = race.split()[:-3:][-1].strip("ダ")
-        entries = race.split()[:-2:][-1]
-        condition = race.split()[:-1:][-1]
-        # print(dt, racename, dist, entries, condition)
-        target_url = race.split()[-1]
-        url = nankan_url + "/result/" + yyyy + target_url + ".do"
+        dt, course, r, racename, distance, head_count, condition, code = race
+        url = nankan_url + "/result/" + yyyy + code + ".do"
         dfs = get_dfs(url)
-        win, qine, trio = 0, 0, 0
-        fst, sec, trd = 0, 0, 0
+        # win, qinella, trio = 0, 0, 0
+        favorite, sec_fav, trd_fav = 0, 0, 0
+        winner, sec_place, trd_place = "", "", ""
         for df in dfs:
             if df.columns[0] == "着":
-                orders = []
+                favorites, winners = [], []
                 for i, row in df.iterrows():
-                    if i == 0:
-                        winner = row["馬名"]
                     if i < 3:
-                        orders.append(int(row["人気"]))
-            fst, sec, trd = orders
+                        favorites.append(int(row["人気"]))
+                        winners.append(row["馬名"])
+            favorite, sec_fav, trd_fav = favorites
+            winner, sec_place, trd_place = winners
             if df.columns[0] == "単勝":
                 for i, row in df.iterrows():
                     if row.name == 1:
@@ -85,7 +81,8 @@ if __name__ == "__main__":
                     if row.name == 1:
                         trif_s = row["三連単.1"]
                         trif = int(trif_s.strip("円").replace(",", ""))
-        values = dt, racename, dist, entries, condition, fst, sec, trd, win, exac, trif, winner
-        # print(values)
-        ws.append_row(values)
+        values = dt, course, r, racename, distance, head_count, condition
+        values = values + (favorite, sec_fav, trd_fav, win, exac, trif, winner, sec_place, trd_place)
+        print(values)
+        # ws.append_row(values)
 
