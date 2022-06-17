@@ -1,7 +1,8 @@
 ua = {"User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.57"}
 from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
-plt.rcParams["font.family"] = "Hiragino sans"
+# plt.rcParams["font.family"] = "Hiragino sans"
+plt.rcParams["font.family"] = "meiryo"
 import pandas as pd
 import pickle
 import requests
@@ -64,16 +65,23 @@ if __name__ == "__main__":
 
     dic = {}
     for i, race in enumerate(races):
-        if i != len(races) - 1: continue
+        if i != len(races) - 6: continue
         print(race)
         entry_url = nankan_url + "/race_info/" + yyyy + race[-1] + ".do"
         soup = get_soup(entry_url)
+        race_data = soup.select_one("div#race-data01")
+        dist_text = race_data.select_one("a").text
+        dist_text = dist_text.strip()
+        dist_text = dist_text.split("m")[0]
+        dist_text = dist_text.strip("ダ").replace(",", "")
+        race_distance = int(dist_text)
+        # print("distance:", race_distance)
         tbl = soup.select_one("table.tb01")
         tags = tbl.select("a.tx-mid")
         data = []
         data_y = []
         for j, tag in enumerate(tags):
-            # if j > 1: continue
+            # if j >1: continue
             uma_name = tag.text
             print("***", uma_name)
             uma_ulr = tag.get("href")
@@ -102,16 +110,20 @@ if __name__ == "__main__":
                         # print(odr, fav, distance, stime, condition, course, racename)
                         if len(x) > 20:
                             continue
-                        x.append(distance)
-                        y.append(ftime)
-                        if 1600 <= distance and distance <= 1650:
-                            data_y.append(ftime)
-            data.append((x, y))
+                        if race_distance == distance:
+                            x.append(j+1)
+                            y.append(ftime)
+                        # if 1600 <= distance and distance <= 1650:
+                        #     data_y.append(ftime)
+            data.append(y)
 
-    # plt.title(uma_name)
     fig, ax = plt.subplots()
-    ax.set_ylim([min(data_y), max(data_y)])
-    ax.set_xlim([1200, 1800])
-    for x, y in data:
-        ax.plot(x, y, ".")
+    ax.set_title(race[3] + " " + race[4])
+    # ax.set_ylim([min(data_y), max(data_y)])
+    # ax.set_xlim([1200, 1800])
+    # for y in data:
+    #     # ax.plot(x, y, ".")
+    #     ax.boxplot(y)
+    ax.boxplot(data)
+    ax.set_xticklabels([i for i in range(1, len(data)+1)])
     plt.show()
