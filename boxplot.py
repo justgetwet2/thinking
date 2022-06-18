@@ -1,8 +1,11 @@
 ua = {"User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.57"}
 from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
-plt.rcParams["font.family"] = "Hiragino sans"
-# plt.rcParams["font.family"] = "meiryo"
+import matplotlib.font_manager as fm
+fpath = "./fonts/Hiragino-Sans-GB-W3.ttf"
+fprop = fm.FontProperties(fname=fpath, size=10)
+# print(fprop.get_name())
+# plt.rcParams["font.family"] = fprop.get_name()
 import numpy as np
 import pandas as pd
 import pickle
@@ -57,7 +60,7 @@ def get_time(condition, stime):
 def times_for_boxplot(race):
     nankan_url =  "https://www.nankankeiba.com"
     yyyy = "2022"
-    racename = race[1] + " " + race[2] + " " + race[3] + " " + race[4]
+    racename = " ".join(race[:5])
     print(racename)
     dist = race[4].split("m")[0]
     dist = dist.replace(",", "")
@@ -131,14 +134,14 @@ if __name__ == "__main__":
     with open(filename, mode="rb") as f:
         races = pickle.load(f)
 
-    race = races[-1]
+    race = races[-2]
     racename, plots, xlabels = times_for_boxplot(race)
 
     import warnings
     warnings.simplefilter('ignore', UserWarning)
     # UserWarning: FixedFormatter should only be used together with FixedLocator
     fig, ax = plt.subplots()
-    ax.set_title(racename)
+    ax.set_title(racename, fontproperties=fprop)
     ax.set_xticklabels(xlabels)
     ax.boxplot(plots)
 
