@@ -3,12 +3,14 @@ from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 fpath = "./fonts/Hiragino-Sans-GB-W3.ttf"
+# fpath = "./fonts/NotoSansJP-Regular.otf"
 fprop = fm.FontProperties(fname=fpath, size=10)
 # print(fprop.get_name())
 # plt.rcParams["font.family"] = fprop.get_name()
 import numpy as np
 import pandas as pd
 import pickle
+import pprint
 import requests
 
 def get_soup(url):
@@ -57,6 +59,14 @@ def get_time(condition, stime):
         ftime = float_time(stime) + 0.1
     return ftime
 
+def left(digit, msg):
+    import unicodedata
+    for c in msg:
+        digit -= 1
+        if unicodedata.east_asian_width(c) in "FWA":
+            digit -= 1
+    return msg + ' '*digit
+
 def times_for_boxplot(race):
     nankan_url =  "https://www.nankankeiba.com"
     yyyy = "2022"
@@ -81,7 +91,7 @@ def times_for_boxplot(race):
         ftimes = []
         # if i: continue
         uma_name = tag.text
-        print(i+1, uma_name)
+        # print(i+1, uma_name)
         uma_ulr = tag.get("href")
         url = nankan_url + uma_ulr
         dfs = get_dfs(url)
@@ -101,28 +111,32 @@ def times_for_boxplot(race):
                         continue
                     ftimes.append((distance, ftime))
         
-        med, race_ftimes = 0, []
+        race_ftimes = []
+        median = 0
         if ftimes:
-            race_distance_ftimes, another_distance_ftimes = [], []
+            all_equidistant_ftimes, all_neardistant_ftimes = [], []
             for distance, ftime in ftimes:
                 if distance == race_distance:
-                    race_distance_ftimes.append(ftime)
+                    all_equidistant_ftimes.append(ftime)
                 else:
                     a = abs(race_distance - distance)
                     if a <= 100:
                         ftime = ftime * (race_distance / distance)
-                        another_distance_ftimes.append(ftime)
+                        all_neardistant_ftimes.append(ftime)
             
-            race_ftimes = [ftime for i, ftime in enumerate(race_distance_ftimes) if i < 10]
-            x = 10 - len(race_ftimes)
+            equidistant_ftimes = [ftime for i, ftime in enumerate(all_equidistant_ftimes) if i < 10]
+            neardistant_ftimes = []
+            x = 10 - len(equidistant_ftimes)
             if x > 0:
-                another_ftimes = [ftime for i, ftime in enumerate(another_distance_ftimes) if i < x]
-                race_ftimes = race_ftimes + another_ftimes
-            med = np.percentile(race_ftimes, 50)
+                neardistant_ftimes = [ftime for i, ftime in enumerate(all_neardistant_ftimes) if i < x]
+            race_ftimes = equidistant_ftimes + neardistant_ftimes
+            median = np.percentile(race_ftimes, 50)
+            last_time = race_ftimes[0]
+            print(f"{i+1:2} {left(20, uma_name)} {len(equidistant_ftimes):2} {len(race_ftimes):2} {round(median, 1):7} {round(last_time, 1):7}")
 
-        data.append((i+1, med, race_ftimes))
+        data.append((i+1, median, race_ftimes))
 
-    sorted_data = sorted(data, key=lambda x: x[1])
+    sorted_data = sorted(data, key=lambda x: x[1]) # sort with median
     plots = [t[2] for t in sorted_data]
     xlabels = [str(t[0]) for t in sorted_data]
 
@@ -134,7 +148,7 @@ if __name__ == "__main__":
     with open(filename, mode="rb") as f:
         races = pickle.load(f)
 
-    race = races[-2]
+    race = races[-5]
     racename, plots, xlabels = times_for_boxplot(race)
 
     import warnings
@@ -144,5 +158,11 @@ if __name__ == "__main__":
     ax.set_title(racename, fontproperties=fprop)
     ax.set_xticklabels(xlabels)
     ax.boxplot(plots)
+
+    last_times = [x[0] for x in plots]
+    ax.plot(range(1, len(xlabels)+1), last_times, "o")
+
+    medians = [np.percentile(x, 50) for x in plots]
+    plt.axhline(y=sorted(medians)[5], color="y", linestyle="--")
 
     plt.show()
