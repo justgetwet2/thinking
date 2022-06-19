@@ -130,8 +130,10 @@ def times_for_boxplot(race):
             if x > 0:
                 neardistant_ftimes = [ftime for i, ftime in enumerate(all_neardistant_ftimes) if i < x]
             race_ftimes = equidistant_ftimes + neardistant_ftimes
-            median = np.percentile(race_ftimes, 50)
             last_time = race_ftimes[0]
+            race_ftimes.append(last_time)
+            median = np.percentile(race_ftimes, 50)
+
             print(f"{i+1:2} {left(20, uma_name)} {len(equidistant_ftimes):2} {len(race_ftimes):2} {round(median, 1):7} {round(last_time, 1):7}")
 
         data.append((i+1, median, race_ftimes))
