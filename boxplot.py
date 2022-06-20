@@ -146,11 +146,12 @@ def times_for_boxplot(race):
 
 if __name__ == "__main__":
 
-    filename = "./data/races_2022.pickle"
+    filename = "../nankan/data/today_races.pickle"
+    # filename = "./data/races_2022.pickle"
     with open(filename, mode="rb") as f:
         races = pickle.load(f)
 
-    race = races[-5]
+    race = races[7]
     racename, plots, xlabels = times_for_boxplot(race)
 
     import warnings
