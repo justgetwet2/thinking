@@ -130,6 +130,8 @@ def times_for_boxplot(race):
             if x > 0:
                 neardistant_ftimes = [ftime for i, ftime in enumerate(all_neardistant_ftimes) if i < x]
             race_ftimes = equidistant_ftimes + neardistant_ftimes
+            # if not race_ftimes:
+            #     continue
             last_time = race_ftimes[0]
             race_ftimes.append(last_time)
             median = np.percentile(race_ftimes, 50)
@@ -151,7 +153,7 @@ if __name__ == "__main__":
     with open(filename, mode="rb") as f:
         races = pickle.load(f)
 
-    race = races[3]
+    race = races[8]
     racename, plots, xlabels = times_for_boxplot(race)
 
     import warnings
