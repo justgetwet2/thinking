@@ -153,7 +153,8 @@ if __name__ == "__main__":
     with open(filename, mode="rb") as f:
         races = pickle.load(f)
 
-    race = races[8]
+    r = 4
+    race = races[r-1]
     racename, plots, xlabels = times_for_boxplot(race)
 
     import warnings
